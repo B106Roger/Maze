@@ -11,6 +11,10 @@
 
 # vs
 /.vs
+*.obj
+*.tlog
+*.log
+
 
 # Qt-es
 object_script.*.Release
