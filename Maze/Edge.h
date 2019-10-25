@@ -51,6 +51,8 @@ class Edge {
 		// for a discussion of which side is left and which is right.
 		char	Point_Side(float x, float y);
 
+		// Returns true if the given point is within the edge
+		bool WithinEdge(float x, float y);
   public:
 		// Constants.
 		// To access these outside the edge class, use Edge::LEFT etc.

@@ -2,6 +2,10 @@
 #include <QGLWidget>
 #include <QString>
 #include <QDir>
+#include "Cell.h"
+#include "LineSeg.h"
+#include <vector>
+using namespace std;
 class OpenGLWidget :public QGLWidget
 {
 	Q_OBJECT
@@ -24,5 +28,18 @@ private:
 
 	float top_z;
 	float but_z;
-};
 
+/*	  
+Recursively draw wall
+*/
+	void drawMaze(Cell *cell, LineSeg f1, LineSeg f2);
+	void drawWall(float xs, float ys, float xe, float ye);
+	void projectionMatrix();
+	vector<vector<float>> matrix;
+	vector<vector<float>> perspective;
+	int DrawCount;
+};
+vector<vector<float>> Multiply(const vector<vector<float>> &m1, const vector<vector<float>> &m2);
+float InnerPrduct(const vector<vector<float>> &v1, const vector<vector<float>> &v2);
+vector<vector<float>> OuterProduct(const vector<vector<float>> &v1, const vector<vector<float>> &v2);
+void Normalize(vector<vector<float>> &v1);

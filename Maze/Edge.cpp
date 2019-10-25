@@ -28,7 +28,8 @@ const char  Edge::NEITHER	= 3;
 const char  Edge::START		= 0;
 const char  Edge::END		= 1;
 
-
+inline float Max(float a, float b) { return a > b ? a : b; }
+inline float Min(float a, float b) { return a < b ? a : b; }
 //***********************************************************************
 //
 // * Constructor to set up the start and end and the color of the edge
@@ -103,4 +104,13 @@ Point_Side(float x, float y)
 		return RIGHT;
 }
 
+bool Edge::WithinEdge(float x, float y)
+{
+	int maxX = Max(endpoints[START]->posn[Vertex::X], endpoints[END]->posn[Vertex::X]);
+	int minX = Min(endpoints[START]->posn[Vertex::X], endpoints[END]->posn[Vertex::X]);
+	int maxY = Max(endpoints[START]->posn[Vertex::Y], endpoints[END]->posn[Vertex::Y]);
+	int minY = Min(endpoints[START]->posn[Vertex::Y], endpoints[END]->posn[Vertex::Y]);
+	if (minX <= x && x <= maxX && minY <= y && y <= maxY) return true;
+	else return false;
+}
 

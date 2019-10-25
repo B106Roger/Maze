@@ -133,6 +133,11 @@ class Maze {
 		float	min_yp;	// The minimum y location of any vertex in the maze.
 		float	max_xp;	// The maximum x location of any vertex in the maze.
 		float	max_yp;	// The maximum y location of any vertex in the maze.
+
+	public:
+		// implement by Roger
+		Cell* getViewCell();
+
 };
 
 

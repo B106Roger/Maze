@@ -19,6 +19,7 @@
 #define _LINESEG_H_
 
 #include "Edge.h"
+#include "Maze.h"
 
 class LineSeg {
 
@@ -41,6 +42,11 @@ class LineSeg {
 	public:
 		float   start[2];	// Starting point, x and y.
 		float   end[2];	// Ending point, x and y.
+
+		int innerProduct(const LineSeg & seg) {
+			return (end[Maze::X] - start[Maze::X]) * (seg.end[Maze::X] - seg.start[Maze::X]) *
+				(end[Maze::Y] - start[Maze::Y]) * (seg.end[Maze::Y] - seg.start[Maze::Y]);
+		}
 };
 
 #endif

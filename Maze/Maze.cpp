@@ -625,3 +625,13 @@ Save(const char *filename)
 
 	return true;
 }
+
+//**********************************************************************
+//
+// * Get current view cell, for drawing purpose
+//======================================================================
+Cell* Maze::getViewCell()
+{
+	this->Set_View_Posn(viewer_posn[Maze::X], viewer_posn[Maze::Y], viewer_posn[Maze::Z]);
+	return view_cell;
+}
