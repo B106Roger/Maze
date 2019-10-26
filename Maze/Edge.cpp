@@ -18,7 +18,7 @@
 #include <stdio.h>
 #include "Edge.h"
 #include "Cell.h"
-
+#include "OpenGLWidget.h"
 
 const char  Edge::LEFT		= 0;
 const char  Edge::RIGHT		= 1;
@@ -95,7 +95,7 @@ Point_Side(float x, float y)
 			( endpoints[END]->posn[Vertex::X] - x ) +
 			endpoints[END]->posn[Vertex::X] * y	- 
 			endpoints[END]->posn[Vertex::Y] * x;
-    
+    det = StableNumber(det,0.001f);
 	if ( det == 0.0 )
 		return ON;
 	else if ( det > 0.0 )
@@ -106,6 +106,8 @@ Point_Side(float x, float y)
 
 bool Edge::WithinEdge(float x, float y)
 {
+	if (Point_Side(x, y) != Edge::ON) return false;
+
 	int maxX = Max(endpoints[START]->posn[Vertex::X], endpoints[END]->posn[Vertex::X]);
 	int minX = Min(endpoints[START]->posn[Vertex::X], endpoints[END]->posn[Vertex::X]);
 	int maxY = Max(endpoints[START]->posn[Vertex::Y], endpoints[END]->posn[Vertex::Y]);

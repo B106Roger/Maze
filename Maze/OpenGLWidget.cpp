@@ -180,10 +180,10 @@ void OpenGLWidget::drawMaze(Cell *cell, LineSeg f1, LineSeg f2)
 	float viewerY = MazeWidget::maze->viewer_posn[Maze::Y];
 	// 玩家可視面對的方向
 	LineSeg viewerDir(
-		MazeWidget::maze->viewer_posn[Maze::X], 
+		MazeWidget::maze->viewer_posn[Maze::X],
 		MazeWidget::maze->viewer_posn[Maze::Y],
-		StableNumber(MazeWidget::maze->viewer_posn[Maze::X] + cos(degree_change(MazeWidget::maze->viewer_dir))),
-		StableNumber(MazeWidget::maze->viewer_posn[Maze::Y] + sin(degree_change(MazeWidget::maze->viewer_dir)))
+		StableNumber(MazeWidget::maze->viewer_posn[Maze::X] + 5.f *cos(degree_change(MazeWidget::maze->viewer_dir))),
+		StableNumber(MazeWidget::maze->viewer_posn[Maze::Y] + 5.f *sin(degree_change(MazeWidget::maze->viewer_dir)))
 	);
 	for (int i = 0; i < 4; i++)
 	{
@@ -194,8 +194,9 @@ void OpenGLWidget::drawMaze(Cell *cell, LineSeg f1, LineSeg f2)
 			float crossParameterView = viewerDir.Cross_Param(e);
 			float crossParameterF1 = f1.Cross_Param(e);
 			float crossParameterF2 = f2.Cross_Param(e);
-			glColor3d(e->color[0] * 255, e->color[1], e->color[2]);
+			glColor3d(e->color[0], e->color[1], e->color[2]);
 
+			// 如果視錐任一個方向進入到edge所需要的參數式大於0.f，則將視錐終點座標設定為該edge所在的直線上
 			if (0.f < crossParameterF1) {
 				f1.end[Maze::X] = StableNumber(f1.start[Maze::X] + (f1.end[Maze::X] - f1.start[Maze::X]) * crossParameterF1);
 				f1.end[Maze::Y] = StableNumber(f1.start[Maze::Y] + (f1.end[Maze::Y] - f1.start[Maze::Y]) * crossParameterF1);
@@ -204,7 +205,7 @@ void OpenGLWidget::drawMaze(Cell *cell, LineSeg f1, LineSeg f2)
 				f2.end[Maze::X] = StableNumber(f2.start[Maze::X] + (f2.end[Maze::X] - f2.start[Maze::X]) * crossParameterF2);
 				f2.end[Maze::Y] = StableNumber(f2.start[Maze::Y] + (f2.end[Maze::Y] - f2.start[Maze::Y]) * crossParameterF2);
 			}
-			if (0.f < crossParameterView) {
+			if (0.f < crossParameterView && crossParameterView < 100000000.f) {
 				viewerDir.end[Maze::X] = StableNumber(viewerDir.start[Maze::X] + (viewerDir.end[Maze::X] - viewerDir.start[Maze::X]) * crossParameterView);
 				viewerDir.end[Maze::Y] = StableNumber(viewerDir.start[Maze::Y] + (viewerDir.end[Maze::Y] - viewerDir.start[Maze::Y]) * crossParameterView);
 			}
@@ -225,14 +226,6 @@ void OpenGLWidget::drawMaze(Cell *cell, LineSeg f1, LineSeg f2)
 				// 玩家座標與Edge另一邊的向量
 				LineSeg edge2(viewerX, viewerY, e->endpoints[Edge::END]->posn[Vertex::X], e->endpoints[Edge::END]->posn[Vertex::Y]);
 
-				float viewDirLen = viewerDir.length();
-				float edge1Len = edge1.length();
-				float edge2Len = edge2.length();
-
-				/*float edge1Deg = Degree(edge1,viewerDir);
-				float edge2Deg = Degree(edge2, viewerDir);;
-				float f1Deg = Degree(f1, viewerDir);
-				float f2Deg = Degree(f2, viewerDir);*/
 				LineSeg viewLine(f1.end[Maze::X],f1.end[Maze::Y], f2.end[Maze::X], f2.end[Maze::Y]);
 				float frustum1LinePara = viewLine.Cross_Param(LineSeg(edge1.end[Maze::X], edge1.end[Maze::Y], 0.1, 0.f));
 				float frustum2LinePara = viewLine.Cross_Param(LineSeg(edge2.end[Maze::X], edge2.end[Maze::Y], 0.1, 0.f));
@@ -247,15 +240,19 @@ void OpenGLWidget::drawMaze(Cell *cell, LineSeg f1, LineSeg f2)
 						e->endpoints[Edge::START]->posn[Vertex::Y],
 						e->endpoints[Edge::END]->posn[Vertex::X],
 						e->endpoints[Edge::END]->posn[Vertex::Y]);
+					continue;
 				}
-				else 
+				
+
 				if (e->WithinEdge(f1.end[Maze::X], f1.end[Maze::Y]))
 				{
 					//當視線與不透明牆壁交會時，在該牆壁取角度靠近viewDir的edge當在drawWall的參數
 					// 並且更新frustum
-					/*if (Distance(viewerDir.end[Maze::X], viewerDir.end[Maze::Y], edge2.end[Maze::X], edge2.end[Maze::Y]) < 
-						Distance(viewerDir.end[Maze::X], viewerDir.end[Maze::Y], edge1.end[Maze::X], edge1.end[Maze::Y]) )*/
-					if (viewerDir.innerProduct(edge1) / (edge1Len * viewDirLen) < viewerDir.innerProduct(edge2) / (edge2Len * viewDirLen))
+					/*if ((edge2_viewDir_Deg < f2_ViewDir_Deg && f2_edge2_Deg < f2_ViewDir_Deg) ||
+						(edge2_viewDir_Deg < f1_ViewDir_Deg && f1_edge2_Deg < f1_ViewDir_Deg))*/
+					//if (Degree(edge2, viewerDir) < f2_ViewDir_Deg && Degree(edge2, f2) < f2_ViewDir_Deg)
+					if (Degree(viewerDir, edge1) > Degree(viewerDir,edge2))
+					//if (viewerDir.innerProduct(edge1) / (edge1Len * viewDirLen) < viewerDir.innerProduct(edge2) / (edge2Len * viewDirLen))
 					{
 						drawWall(edge2.end[Maze::X], edge2.end[Maze::Y], f1.end[Maze::X], f1.end[Maze::Y]);
 						f1.end[Maze::X] = edge2.end[Maze::X];
@@ -268,13 +265,16 @@ void OpenGLWidget::drawMaze(Cell *cell, LineSeg f1, LineSeg f2)
 						f1.end[Maze::Y] = edge1.end[Maze::Y];
 					}
 				}
+				
 				else if (e->WithinEdge(f2.end[Maze::X], f2.end[Maze::Y]))
 				{
+					/*if ((edge2_viewDir_Deg < f2_ViewDir_Deg && f2_edge2_Deg < f2_ViewDir_Deg) ||
+						(edge2_viewDir_Deg < f1_ViewDir_Deg && f1_edge2_Deg < f1_ViewDir_Deg))*/
 					//當視線與不透明牆壁交會時，在該牆壁取角度靠近viewDir的edge當在drawWall的參數
 					// 並且更新frustum
-					/*if (Distance(viewerDir.end[Maze::X], viewerDir.end[Maze::Y], edge2.end[Maze::X], edge2.end[Maze::Y]) <
-						Distance(viewerDir.end[Maze::X], viewerDir.end[Maze::Y], edge1.end[Maze::X], edge1.end[Maze::Y]))*/
-					if (viewerDir.innerProduct(edge1) / (edge1Len * viewDirLen) < viewerDir.innerProduct(edge2) / (edge2Len * viewDirLen))
+					//if (Degree(edge2, viewerDir) < f1_ViewDir_Deg && Degree(edge2, f1) < f1_ViewDir_Deg)
+					if (Degree(viewerDir, edge1) > Degree(viewerDir, edge2))
+					//if (viewerDir.innerProduct(edge1) / (edge1Len * viewDirLen) < viewerDir.innerProduct(edge2) / (edge2Len * viewDirLen))
 					{
 						drawWall(edge2.end[Maze::X], edge2.end[Maze::Y], f2.end[Maze::X], f2.end[Maze::Y]);
 						f2.end[Maze::X] = edge2.end[Maze::X];
@@ -315,7 +315,6 @@ void OpenGLWidget::drawWall(float xs,float ys,float xe, float ye)
 		glVertex2f(result[0][j] / result[3][j], result[1][j] / result[3][j]);
 		// cout << '(' << result[0][j] / result[3][j] << ',' << result[1][j] / result[3][j] << ')' << "  ";
 	}
-	PrintMatrix(result);
 	/*if (result[2][0] / result[3][0] != result[2][1] / result[3][1] || result[2][2] / result[3][2] || result[2][3] / result[3][3])
 	{
 		cout << "  error transform" << endl;
@@ -336,7 +335,7 @@ void OpenGLWidget::projectionMatrix()
 	// t向量: 玩家頭頂向量(normalize)
 	vector<vector<float>> t(1, vector<float>(3, 0.f));
 	t[0][0] = 0.f;
-	t[0][1] = 1.f;
+	t[0][1] = -1.f;
 	t[0][2] = 0.f;
 
 	// g向量: 玩家視線方向(normalize)
@@ -483,9 +482,9 @@ void PrintMatrix(vector<vector<float>> a)
 	}
 }
 
-float StableNumber(float num)
+float StableNumber(float num, float precisionNum)
 {
-	static float precision = 0.00001f;
+	static float precision = precisionNum;
 	float target = abs(num);
 
 	int nearestInt = abs(target - float(int(target))) < 0.5f ? target : target + 1;
