@@ -1,9 +1,2 @@
-﻿  Cell.cpp
-  moc_MazeWidget.cpp
-  moc_OpenGLWidget.cpp
-  LineSeg.cpp
-  MazeWidget.cpp
-  OpenGLWidget.cpp
-  main.cpp
-  正在產生程式碼...
+﻿  OpenGLWidget.cpp
   Maze.vcxproj -> D:\GitHub\Maze\x64\Debug\Maze.exe

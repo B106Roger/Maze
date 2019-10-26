@@ -4,6 +4,7 @@
 #include <gl\gl.h>
 #include <gl\GLU.h>
 #include <assert.h>
+#include <math.h>
 
 OpenGLWidget::OpenGLWidget(QWidget *parent) : QGLWidget(parent)
 {
@@ -128,8 +129,6 @@ void OpenGLWidget::Mini_Map()
 void OpenGLWidget::Map_3D()
 {
 	glLoadIdentity();
-
-
 	// 畫右邊區塊的所有東西
 	//glPolygonMode(GL_FRONT, GL_FILL);
 
@@ -183,8 +182,8 @@ void OpenGLWidget::drawMaze(Cell *cell, LineSeg f1, LineSeg f2)
 	LineSeg viewerDir(
 		MazeWidget::maze->viewer_posn[Maze::X], 
 		MazeWidget::maze->viewer_posn[Maze::Y],
-		MazeWidget::maze->viewer_posn[Maze::X] + cos(degree_change(MazeWidget::maze->viewer_dir)),
-		MazeWidget::maze->viewer_posn[Maze::Y] + sin(degree_change(MazeWidget::maze->viewer_dir))
+		StableNumber(MazeWidget::maze->viewer_posn[Maze::X] + cos(degree_change(MazeWidget::maze->viewer_dir))),
+		StableNumber(MazeWidget::maze->viewer_posn[Maze::Y] + sin(degree_change(MazeWidget::maze->viewer_dir)))
 	);
 	for (int i = 0; i < 4; i++)
 	{
@@ -192,28 +191,29 @@ void OpenGLWidget::drawMaze(Cell *cell, LineSeg f1, LineSeg f2)
 		cout << "Edge: " << i << endl;
 		if (e->opaque)
 		{
+			float crossParameterView = viewerDir.Cross_Param(e);
 			float crossParameterF1 = f1.Cross_Param(e);
 			float crossParameterF2 = f2.Cross_Param(e);
-			bool clipF1 = false;
-			if (0.f < crossParameterF1) {
-				f1.end[Maze::X] = f1.start[Maze::X] + (f1.end[Maze::X] - f1.start[Maze::X]) * crossParameterF1;
-				f1.end[Maze::Y] = f1.start[Maze::Y] + (f1.end[Maze::Y] - f1.start[Maze::Y]) * crossParameterF1;
-				if (abs(f1.end[Maze::X]) < 0.00001f) f1.end[Maze::X] = 0.f;
-				if (abs(f1.end[Maze::Y]) < 0.00001f) f1.end[Maze::Y] = 0.f;
+			glColor3d(e->color[0] * 255, e->color[1], e->color[2]);
 
+			if (0.f < crossParameterF1) {
+				f1.end[Maze::X] = StableNumber(f1.start[Maze::X] + (f1.end[Maze::X] - f1.start[Maze::X]) * crossParameterF1);
+				f1.end[Maze::Y] = StableNumber(f1.start[Maze::Y] + (f1.end[Maze::Y] - f1.start[Maze::Y]) * crossParameterF1);
 			}
 			if (0.f < crossParameterF2) {
-				f2.end[Maze::X] = f2.start[Maze::X] + (f2.end[Maze::X] - f2.start[Maze::X]) * crossParameterF2;
-				f2.end[Maze::Y] = f2.start[Maze::Y] + (f2.end[Maze::Y] - f2.start[Maze::Y]) * crossParameterF2;
-				if (abs(f2.end[Maze::X]) < 0.00001f) f2.end[Maze::X] = 0.f;
-				if (abs(f2.end[Maze::Y]) < 0.00001f) f2.end[Maze::Y] = 0.f;
+				f2.end[Maze::X] = StableNumber(f2.start[Maze::X] + (f2.end[Maze::X] - f2.start[Maze::X]) * crossParameterF2);
+				f2.end[Maze::Y] = StableNumber(f2.start[Maze::Y] + (f2.end[Maze::Y] - f2.start[Maze::Y]) * crossParameterF2);
+			}
+			if (0.f < crossParameterView) {
+				viewerDir.end[Maze::X] = StableNumber(viewerDir.start[Maze::X] + (viewerDir.end[Maze::X] - viewerDir.start[Maze::X]) * crossParameterView);
+				viewerDir.end[Maze::Y] = StableNumber(viewerDir.start[Maze::Y] + (viewerDir.end[Maze::Y] - viewerDir.start[Maze::Y]) * crossParameterView);
 			}
 
+			bool f1WithinEdge = e->WithinEdge(f1.end[Maze::X], f1.end[Maze::Y]);
+			bool f2WithinEdge = e->WithinEdge(f2.end[Maze::X], f2.end[Maze::Y]);
 			// 如果Clip過後發現視椎都落在同一個Edge上，就直接畫了
-			if (e->WithinEdge(f1.end[Maze::X],f1.end[Maze::Y]) && e->WithinEdge(f2.end[Maze::X],f2.end[Maze::Y]))
+			if (f1WithinEdge && f2WithinEdge)
 			{
-
-				glColor3d(e->color[0] * 255, e->color[1], e->color[2]);
 				drawWall(f1.end[Maze::X], f1.end[Maze::Y], f2.end[Maze::X], f2.end[Maze::Y]);
 				continue;
 			}
@@ -224,20 +224,45 @@ void OpenGLWidget::drawMaze(Cell *cell, LineSeg f1, LineSeg f2)
 				LineSeg edge1(viewerX, viewerY, e->endpoints[Edge::START]->posn[Vertex::X], e->endpoints[Edge::START]->posn[Vertex::Y]);
 				// 玩家座標與Edge另一邊的向量
 				LineSeg edge2(viewerX, viewerY, e->endpoints[Edge::END]->posn[Vertex::X], e->endpoints[Edge::END]->posn[Vertex::Y]);
+
+				float viewDirLen = viewerDir.length();
+				float edge1Len = edge1.length();
+				float edge2Len = edge2.length();
+
+				/*float edge1Deg = Degree(edge1,viewerDir);
+				float edge2Deg = Degree(edge2, viewerDir);;
+				float f1Deg = Degree(f1, viewerDir);
+				float f2Deg = Degree(f2, viewerDir);*/
+				LineSeg viewLine(f1.end[Maze::X],f1.end[Maze::Y], f2.end[Maze::X], f2.end[Maze::Y]);
+				float frustum1LinePara = viewLine.Cross_Param(LineSeg(edge1.end[Maze::X], edge1.end[Maze::Y], 0.1, 0.f));
+				float frustum2LinePara = viewLine.Cross_Param(LineSeg(edge2.end[Maze::X], edge2.end[Maze::Y], 0.1, 0.f));
+
+				if (0.f <= frustum1LinePara && frustum1LinePara <= 1.f &&
+					0.f <= frustum2LinePara && frustum2LinePara <= 1.f &&
+					e->Point_Side(f1.end[Maze::X], f1.end[Maze::Y]) == Edge::ON &&
+					e->Point_Side(f2.end[Maze::X], f2.end[Maze::Y]) == Edge::ON)
+				{
+					drawWall(
+						e->endpoints[Edge::START]->posn[Vertex::X],
+						e->endpoints[Edge::START]->posn[Vertex::Y],
+						e->endpoints[Edge::END]->posn[Vertex::X],
+						e->endpoints[Edge::END]->posn[Vertex::Y]);
+				}
+				else 
 				if (e->WithinEdge(f1.end[Maze::X], f1.end[Maze::Y]))
 				{
 					//當視線與不透明牆壁交會時，在該牆壁取角度靠近viewDir的edge當在drawWall的參數
 					// 並且更新frustum
-					if (edge1.innerProduct(viewerDir) < edge2.innerProduct(viewerDir))
+					/*if (Distance(viewerDir.end[Maze::X], viewerDir.end[Maze::Y], edge2.end[Maze::X], edge2.end[Maze::Y]) < 
+						Distance(viewerDir.end[Maze::X], viewerDir.end[Maze::Y], edge1.end[Maze::X], edge1.end[Maze::Y]) )*/
+					if (viewerDir.innerProduct(edge1) / (edge1Len * viewDirLen) < viewerDir.innerProduct(edge2) / (edge2Len * viewDirLen))
 					{
-						glColor3d(e->color[0], e->color[1], e->color[2]);
 						drawWall(edge2.end[Maze::X], edge2.end[Maze::Y], f1.end[Maze::X], f1.end[Maze::Y]);
 						f1.end[Maze::X] = edge2.end[Maze::X];
 						f1.end[Maze::Y] = edge2.end[Maze::Y];
 					}
 					else
 					{
-						glColor3d(e->color[0], e->color[1], e->color[2]);
 						drawWall(edge1.end[Maze::X], edge1.end[Maze::Y], f1.end[Maze::X], f1.end[Maze::Y]);
 						f1.end[Maze::X] = edge1.end[Maze::X];
 						f1.end[Maze::Y] = edge1.end[Maze::Y];
@@ -247,16 +272,16 @@ void OpenGLWidget::drawMaze(Cell *cell, LineSeg f1, LineSeg f2)
 				{
 					//當視線與不透明牆壁交會時，在該牆壁取角度靠近viewDir的edge當在drawWall的參數
 					// 並且更新frustum
-					if (edge1.innerProduct(viewerDir) < edge2.innerProduct(viewerDir))
+					/*if (Distance(viewerDir.end[Maze::X], viewerDir.end[Maze::Y], edge2.end[Maze::X], edge2.end[Maze::Y]) <
+						Distance(viewerDir.end[Maze::X], viewerDir.end[Maze::Y], edge1.end[Maze::X], edge1.end[Maze::Y]))*/
+					if (viewerDir.innerProduct(edge1) / (edge1Len * viewDirLen) < viewerDir.innerProduct(edge2) / (edge2Len * viewDirLen))
 					{
-						glColor3d(e->color[0], e->color[1], e->color[2]);
 						drawWall(edge2.end[Maze::X], edge2.end[Maze::Y], f2.end[Maze::X], f2.end[Maze::Y]);
 						f2.end[Maze::X] = edge2.end[Maze::X];
 						f2.end[Maze::Y] = edge2.end[Maze::Y];
 					}
 					else
 					{
-						glColor3d(e->color[0], e->color[1], e->color[2]);
 						drawWall(edge1.end[Maze::X], edge1.end[Maze::Y], f2.end[Maze::X], f2.end[Maze::Y]);
 						f2.end[Maze::X] = edge1.end[Maze::X];
 						f2.end[Maze::Y] = edge1.end[Maze::Y];
@@ -458,10 +483,44 @@ void PrintMatrix(vector<vector<float>> a)
 	}
 }
 
+float StableNumber(float num)
+{
+	static float precision = 0.00001f;
+	float target = abs(num);
 
+	int nearestInt = abs(target - float(int(target))) < 0.5f ? target : target + 1;
 
+	if (num < 0.f) {
+		if (abs(-num - nearestInt) < precision)
+		{
+			return -nearestInt;
+		} 
+	}
+	else
+	{
+		if (abs(num - nearestInt) < precision)
+		{
+			return nearestInt;
+		}
+	}
+	return num;
+}
 
+float Distance(float x1, float y1, float x2, float y2)
+{
+	float deltaX = abs(x1 - x2);
+	float deltaY = abs(y1 - y2);
+	return sqrt(deltaX * deltaX + deltaY * deltaY);
+}
 
+// retrun [0,359.9999]
+float Degree(const LineSeg& line1, const LineSeg& line2)
+{
+	float innerVal = line1.innerProduct(line2);
+	float radian = acos(innerVal / (line1.length() * line2.length()));
+	float result = radian / 3.14159f * 180.f;
+	return result;
+}
 
 
 

@@ -47,3 +47,6 @@ float InnerPrduct(const vector<vector<float>> &v1, const vector<vector<float>> &
 vector<vector<float>> OuterProduct(const vector<vector<float>> &v1, const vector<vector<float>> &v2);
 void Normalize(vector<vector<float>> &v1);
 void PrintMatrix(vector<vector<float>>);
+float StableNumber(float num);
+float Distance(float x1, float y1, float x2, float y2);
+float Degree(const LineSeg& line1, const LineSeg& line2);
