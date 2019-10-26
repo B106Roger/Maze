@@ -49,6 +49,8 @@ Edge(int i, Vertex *start, Vertex *end, float r, float g, float b)
 	color[0] = r;
 	color[1] = g;
 	color[2] = b;
+
+	counter = 0;
 }
 
 //***********************************************************************

@@ -17,9 +17,9 @@ MazeWidget::MazeWidget(QWidget *parent): QMainWindow(parent)
 	QDir dir("Maze Map");
 	QString temp;
 	if (dir.exists())
-		temp = "./Maze Map/Maze Map/maze-1x1-45";
+		temp = "./Maze Map/Maze Map/maze-1x1-100";
 	else
-		temp = "../x64/Release/Maze Map/maze-1x1-45";
+		temp = "../x64/Release/Maze Map/maze-1x1-100";
 	maze = new Maze(temp.toStdString().c_str());
 	ui.widget->updateGL();
 	timer->start(20);

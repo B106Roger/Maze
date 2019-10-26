@@ -38,19 +38,19 @@ class LineSeg {
 		// THIS FUNCTION IS EXTREMELY USEFUL FOR CLIPPING, but it 
 		// DOES NOT tell you whether the edge is "entering" or "leaving".
 		// But you can use tests like Edge::Point_Side() to figure that out.
-		float   Cross_Param(LineSeg);
+		double   Cross_Param(LineSeg);
 
 	public:
-		float   start[2];	// Starting point, x and y.
-		float   end[2];	// Ending point, x and y.
+		double   start[2];	// Starting point, x and y.
+		double   end[2];	// Ending point, x and y.
 
-		int innerProduct(const LineSeg & seg) const {
+		float innerProduct(const LineSeg & seg) const {
 			return (end[Maze::X] - start[Maze::X]) * (seg.end[Maze::X] - seg.start[Maze::X]) +
 				(end[Maze::Y] - start[Maze::Y]) * (seg.end[Maze::Y] - seg.start[Maze::Y]);
 		}
-		float length() const {
-			float deltaX = end[Maze::X] - start[Maze::X];
-			float deltaY = end[Maze::Y] - start[Maze::Y];
+		double length() const {
+			double deltaX = end[Maze::X] - start[Maze::X];
+			double deltaY = end[Maze::Y] - start[Maze::Y];
 			return sqrt(deltaX * deltaX + deltaY * deltaY);
 		}
 };

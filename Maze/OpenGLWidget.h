@@ -41,6 +41,7 @@ Recursively draw wall
 
 	float nearDistance;
 	float farDistance;
+	void testingSetting();
 };
 vector<vector<float>> Multiply(const vector<vector<float>> &m1, const vector<vector<float>> &m2);
 float InnerPrduct(const vector<vector<float>> &v1, const vector<vector<float>> &v2);
@@ -49,4 +50,5 @@ void Normalize(vector<vector<float>> &v1);
 void PrintMatrix(vector<vector<float>>);
 float StableNumber(float num, float precision = 0.00001f);
 float Distance(float x1, float y1, float x2, float y2);
-float Degree(const LineSeg& line1, const LineSeg& line2);
+double Degree(const LineSeg& line1, const LineSeg& line2);
+ 
