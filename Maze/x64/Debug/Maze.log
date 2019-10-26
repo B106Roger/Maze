@@ -1,6 +1,7 @@
-﻿  Moc'ing OpenGLWidget.h...
+﻿  Cell.cpp
   moc_MazeWidget.cpp
   moc_OpenGLWidget.cpp
+  LineSeg.cpp
   MazeWidget.cpp
   OpenGLWidget.cpp
   main.cpp

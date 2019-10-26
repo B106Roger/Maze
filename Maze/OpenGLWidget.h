@@ -38,8 +38,12 @@ Recursively draw wall
 	vector<vector<float>> matrix;
 	vector<vector<float>> perspective;
 	int DrawCount;
+
+	float nearDistance;
+	float farDistance;
 };
 vector<vector<float>> Multiply(const vector<vector<float>> &m1, const vector<vector<float>> &m2);
 float InnerPrduct(const vector<vector<float>> &v1, const vector<vector<float>> &v2);
 vector<vector<float>> OuterProduct(const vector<vector<float>> &v1, const vector<vector<float>> &v2);
 void Normalize(vector<vector<float>> &v1);
+void PrintMatrix(vector<vector<float>>);

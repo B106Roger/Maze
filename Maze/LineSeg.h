@@ -44,7 +44,7 @@ class LineSeg {
 		float   end[2];	// Ending point, x and y.
 
 		int innerProduct(const LineSeg & seg) {
-			return (end[Maze::X] - start[Maze::X]) * (seg.end[Maze::X] - seg.start[Maze::X]) *
+			return (end[Maze::X] - start[Maze::X]) * (seg.end[Maze::X] - seg.start[Maze::X]) +
 				(end[Maze::Y] - start[Maze::Y]) * (seg.end[Maze::Y] - seg.start[Maze::Y]);
 		}
 };
