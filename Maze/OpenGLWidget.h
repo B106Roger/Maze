@@ -51,4 +51,4 @@ void PrintMatrix(vector<vector<float>>);
 float StableNumber(float num, float precision = 0.00001f);
 float Distance(float x1, float y1, float x2, float y2);
 double Degree(const LineSeg& line1, const LineSeg& line2);
-LineSeg GetViewDir(const LineSeg & line1, const LineSeg line2);
+LineSeg GetViewDir(const LineSeg & line1, const LineSeg &line2);

@@ -212,17 +212,11 @@ void OpenGLWidget::drawMaze(Cell *cell, LineSeg f1, LineSeg f2)
 	for (int i = 0; i < 4; i++)
 	{
 		Edge *e = newOrder[i];
-		cout << "Cell: " << cell->index << "  Edge: " << '('
-			<< e->endpoints[Edge::START]->posn[Maze::X] << ',' 
-			<< e->endpoints[Edge::START]->posn[Maze::Y] << ") ("
-			<< e->endpoints[Edge::END]->posn[Maze::X] << ',' 
-			<< e->endpoints[Edge::END]->posn[Maze::Y] << ')' << endl;
-		/*LineSeg viewerDir(
-			viewerX,
-			viewerY,
-			StableNumber(viewerX + 5.f *cos(degree_change(MazeWidget::maze->viewer_dir))),
-			StableNumber(viewerY + 5.f *sin(degree_change(MazeWidget::maze->viewer_dir)))
-		);*/
+		//cout << "Cell: " << cell->index << "  Edge: " << '('
+		//	<< e->endpoints[Edge::START]->posn[Maze::X] << ',' 
+		//	<< e->endpoints[Edge::START]->posn[Maze::Y] << ") ("
+		//	<< e->endpoints[Edge::END]->posn[Maze::X] << ',' 
+		//	<< e->endpoints[Edge::END]->posn[Maze::Y] << ')' << endl;
 		LineSeg viewerDir = GetViewDir(f1, f2);
 		if (e->opaque)
 		{
@@ -240,18 +234,10 @@ void OpenGLWidget::drawMaze(Cell *cell, LineSeg f1, LineSeg f2)
 			if (0.f < crossParameterF1) {
 				f1.end[Maze::X] = StableNumber(f1.start[Maze::X] + (f1.end[Maze::X] - f1.start[Maze::X]) * crossParameterF1);
 				f1.end[Maze::Y] = StableNumber(f1.start[Maze::Y] + (f1.end[Maze::Y] - f1.start[Maze::Y]) * crossParameterF1);
-				if (viewerF1Deg != Degree(viewerDir, f1))
-				{
-					//cout << "Error   f1 old:" << viewerF1Deg << " new: " << Degree(viewerDir, f1) << endl;
-				}
 			}
 			if (0.f < crossParameterF2) {
 				f2.end[Maze::X] = StableNumber(f2.start[Maze::X] + (f2.end[Maze::X] - f2.start[Maze::X]) * crossParameterF2);
 				f2.end[Maze::Y] = StableNumber(f2.start[Maze::Y] + (f2.end[Maze::Y] - f2.start[Maze::Y]) * crossParameterF2);
-				if (viewerF2Deg != Degree(viewerDir, f2))
-				{
-					//cout << "Error   f2 old:" << viewerF2Deg << " new: " << Degree(viewerDir, f2) << endl;
-				}
 			}
 			if (0.f < crossParameterView && crossParameterView < 100000000.f) {
 				viewerDir.end[Maze::X] = StableNumber(viewerDir.start[Maze::X] + (viewerDir.end[Maze::X] - viewerDir.start[Maze::X]) * crossParameterView);
@@ -304,41 +290,29 @@ void OpenGLWidget::drawMaze(Cell *cell, LineSeg f1, LineSeg f2)
 					// 並且更新frustum
 					if ((edge2_viewDir_Deg <= f2_ViewDir_Deg && f2_edge2_Deg <= f2_ViewDir_Deg) ||
 						(edge2_viewDir_Deg <= f1_ViewDir_Deg && f1_edge2_Deg <= f1_ViewDir_Deg))
-					//if (Degree(viewerDir, edge1) > Degree(viewerDir,edge2))
-					//if (viewerDir.innerProduct(edge1) / (edge1Len * viewDirLen) < viewerDir.innerProduct(edge2) / (edge2Len * viewDirLen))
 					{
 						drawWall(edge2.end[Maze::X], edge2.end[Maze::Y], f1.end[Maze::X], f1.end[Maze::Y]);
-						//f1.end[Maze::X] = edge2.end[Maze::X];
-						//f1.end[Maze::Y] = edge2.end[Maze::Y];
 					}
 					else if((edge1_viewDir_Deg <= f2_ViewDir_Deg && f2_edge1_Deg <= f2_ViewDir_Deg) ||
 							(edge1_viewDir_Deg <= f1_ViewDir_Deg && f1_edge1_Deg <= f1_ViewDir_Deg))
 					{
 						drawWall(edge1.end[Maze::X], edge1.end[Maze::Y], f1.end[Maze::X], f1.end[Maze::Y]);
-						//f1.end[Maze::X] = edge1.end[Maze::X];
-						//f1.end[Maze::Y] = edge1.end[Maze::Y];
 					}
 				}
 				
 				else if (e->WithinEdge(f2.end[Maze::X], f2.end[Maze::Y]))
 				{
-					if ((edge2_viewDir_Deg <= f2_ViewDir_Deg && f2_edge2_Deg <= f2_ViewDir_Deg) ||
-						(edge2_viewDir_Deg <= f1_ViewDir_Deg && f1_edge2_Deg <= f1_ViewDir_Deg))
 					//當視線與不透明牆壁交會時，在該牆壁取角度靠近viewDir的edge當在drawWall的參數
 					// 並且更新frustum
-					//if (Degree(viewerDir, edge1) > Degree(viewerDir, edge2))
-					//if (viewerDir.innerProduct(edge1) / (edge1Len * viewDirLen) < viewerDir.innerProduct(edge2) / (edge2Len * viewDirLen))
+					if ((edge2_viewDir_Deg <= f2_ViewDir_Deg && f2_edge2_Deg <= f2_ViewDir_Deg) ||
+						(edge2_viewDir_Deg <= f1_ViewDir_Deg && f1_edge2_Deg <= f1_ViewDir_Deg))
 					{
 						drawWall(edge2.end[Maze::X], edge2.end[Maze::Y], f2.end[Maze::X], f2.end[Maze::Y]);
-						//f2.end[Maze::X] = edge2.end[Maze::X];
-						//f2.end[Maze::Y] = edge2.end[Maze::Y];
 					}
 					else if ((edge1_viewDir_Deg <= f2_ViewDir_Deg && f2_edge1_Deg <= f2_ViewDir_Deg) ||
 							 (edge1_viewDir_Deg <= f1_ViewDir_Deg && f1_edge1_Deg <= f1_ViewDir_Deg))
 					{
 						drawWall(edge1.end[Maze::X], edge1.end[Maze::Y], f2.end[Maze::X], f2.end[Maze::Y]);
-						//f2.end[Maze::X] = edge1.end[Maze::X];
-						//f2.end[Maze::Y] = edge1.end[Maze::Y];
 					}
 				}
 			}
@@ -451,19 +425,12 @@ void OpenGLWidget::drawWall(float xs,float ys,float xe, float ye)
 		{ 1, 1, 1, 1}
 	};
 
-	cout << '(' << xs << ',' << ys << ')' << '(' << xe << ',' << ye << ')' << endl;
-
 	vector<vector<float>> result = Multiply(matrix, wall);
 	glBegin(GL_POLYGON);
 	for (int j = 0; j < 4; j++)
 	{
 		glVertex2f(result[0][j] / result[3][j], result[1][j] / result[3][j]);
-		// cout << '(' << result[0][j] / result[3][j] << ',' << result[1][j] / result[3][j] << ')' << "  ";
 	}
-	/*if (result[2][0] / result[3][0] != result[2][1] / result[3][1] || result[2][2] / result[3][2] || result[2][3] / result[3][3])
-	{
-		cout << "  error transform" << endl;
-	}*/
 	glEnd();
 } 
 
@@ -543,18 +510,14 @@ void OpenGLWidget::projectionMatrix()
 		{0,0,-(farPos + nearPos) / (farPos -nearPos) ,-2 * farPos * nearPos / (farPos - nearPos)},
 		{0,0,-1,0}
 	};
-	vector<vector<float>> viewToScreen2 =
+	/*vector<vector<float>> viewToScreen2 =
 	{
 		{1,0,0,0},
 		{0,1,0,0},
 		{0,0,1,0},
 		{0,0,1/d,0}
-	};
+	};*/
 	matrix = Multiply(viewToScreen,worldToView);
-
-	perspective = viewToScreen;
-	/*vector<vector<float>> vertex = { {1.5},{1.3},{1.8},{1.f} };
-	vector<vector<float>> test = Multiply(perspective, vertex);*/
 }
 
 vector<vector<float>> Multiply(const vector<vector<float>> &m1, const vector<vector<float>> &m2)
@@ -667,14 +630,11 @@ double Degree(const LineSeg& line1, const LineSeg& line2)
 	{
 		return 0.0f;
 	}
-	double innerVal = line1.innerProduct(line2);
-	double cosValue = innerVal / (line1.length() * line2.length());
-	double radian = acos(cosValue);
-	double result = radian / 3.1415926l * 180.l;
-	return result;
+	double radian = acos(line1.innerProduct(line2) / (line1.length() * line2.length()));
+	return  radian / 3.1415926l * 180.l;
 }
 
-LineSeg GetViewDir(const LineSeg & line1, const LineSeg line2)
+LineSeg GetViewDir(const LineSeg & line1, const LineSeg & line2)
 {
 	assert(line1.start[Maze::X] == line2.start[Maze::X] && line1.start[Maze::Y] == line2.start[Maze::Y]);
 	double len = line1.length() < line2.length() ? line2.length() : line1.length();

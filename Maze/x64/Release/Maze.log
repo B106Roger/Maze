@@ -1,20 +1,7 @@
 ﻿  Moc'ing OpenGLWidget.h...
-  Cell.cpp
   Edge.cpp
   moc_MazeWidget.cpp
   moc_OpenGLWidget.cpp
-  LineSeg.cpp
-  Maze.cpp
-d:\github\maze\maze\maze.cpp(118): warning C4312: '類型轉換': 將 'int' 轉換為較大的 'Cell *'
-d:\github\maze\maze\maze.cpp(119): warning C4312: '類型轉換': 將 'int' 轉換為較大的 'Cell *'
-d:\github\maze\maze\maze.cpp(141): warning C4312: '類型轉換': 將 'int' 轉換為較大的 'Cell *'
-d:\github\maze\maze\maze.cpp(143): warning C4312: '類型轉換': 將 'int' 轉換為較大的 'Cell *'
-d:\github\maze\maze\maze.cpp(154): warning C4312: '類型轉換': 將 'int' 轉換為較大的 'Cell *'
-d:\github\maze\maze\maze.cpp(156): warning C4312: '類型轉換': 將 'int' 轉換為較大的 'Cell *'
-d:\github\maze\maze\maze.cpp(166): warning C4312: '類型轉換': 將 'int' 轉換為較大的 'Cell *'
-d:\github\maze\maze\maze.cpp(168): warning C4312: '類型轉換': 將 'int' 轉換為較大的 'Cell *'
-d:\github\maze\maze\maze.cpp(178): warning C4312: '類型轉換': 將 'int' 轉換為較大的 'Cell *'
-d:\github\maze\maze\maze.cpp(180): warning C4312: '類型轉換': 將 'int' 轉換為較大的 'Cell *'
   MazeWidget.cpp
   OpenGLWidget.cpp
   main.cpp
