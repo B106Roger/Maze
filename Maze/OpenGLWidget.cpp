@@ -5,6 +5,8 @@
 #include <gl\GLU.h>
 #include <assert.h>
 #include <math.h>
+#include <vector>
+using namespace std;
 
 OpenGLWidget::OpenGLWidget(QWidget *parent) : QGLWidget(parent)
 {
@@ -186,23 +188,42 @@ void OpenGLWidget::drawMaze(Cell *cell, LineSeg f1, LineSeg f2)
 {
 	const float viewerX = MazeWidget::maze->viewer_posn[Maze::X];
 	const float viewerY = MazeWidget::maze->viewer_posn[Maze::Y];
-	// 玩家可視面對的方向	
+	cout << "Cell: " << cell->index << endl;
+	vector<Edge*> newOrder;
+	// 先將繪製不透明的
 	for (int i = 0; i < 4; i++)
 	{
 		Edge *e = cell->edges[i];
-		if (e->counter != DrawCount) e->counter = DrawCount;
-		else continue;
-		cout << "Edge: " << '(' 
+		if (e->opaque)
+		{
+			newOrder.push_back(e);
+		}
+	}
+	// 再繪製透明的
+	for (int i = 0; i < 4; i++)
+	{
+		Edge *e = cell->edges[i];
+		if (!e->opaque)
+		{
+			newOrder.push_back(e);
+		}
+	}
+	// 玩家可視面對的方向	
+	for (int i = 0; i < 4; i++)
+	{
+		Edge *e = newOrder[i];
+		cout << "Cell: " << cell->index << "  Edge: " << '('
 			<< e->endpoints[Edge::START]->posn[Maze::X] << ',' 
 			<< e->endpoints[Edge::START]->posn[Maze::Y] << ") ("
 			<< e->endpoints[Edge::END]->posn[Maze::X] << ',' 
 			<< e->endpoints[Edge::END]->posn[Maze::Y] << ')' << endl;
-		LineSeg viewerDir(
+		/*LineSeg viewerDir(
 			viewerX,
 			viewerY,
 			StableNumber(viewerX + 5.f *cos(degree_change(MazeWidget::maze->viewer_dir))),
 			StableNumber(viewerY + 5.f *sin(degree_change(MazeWidget::maze->viewer_dir)))
-		);
+		);*/
+		LineSeg viewerDir = GetViewDir(f1, f2);
 		if (e->opaque)
 		{
 			double crossParameterView = viewerDir.Cross_Param(e);
@@ -266,19 +287,6 @@ void OpenGLWidget::drawMaze(Cell *cell, LineSeg f1, LineSeg f2)
 				double edge2_viewDir_Deg = Degree(edge2, viewerDir);
 				double edge1_viewDir_Deg = Degree(edge1, viewerDir);
 
-
-				/*if (0.f <= frustum1LinePara && frustum1LinePara <= 1.f &&
-					0.f <= frustum2LinePara && frustum2LinePara <= 1.f &&
-					e->Point_Side(f1.end[Maze::X], f1.end[Maze::Y]) == Edge::ON &&
-					e->Point_Side(f2.end[Maze::X], f2.end[Maze::Y]) == Edge::ON)
-				{
-					drawWall(
-						e->endpoints[Edge::START]->posn[Vertex::X],
-						e->endpoints[Edge::START]->posn[Vertex::Y],
-						e->endpoints[Edge::END]->posn[Vertex::X],
-						e->endpoints[Edge::END]->posn[Vertex::Y]);
-					continue;
-				}*/
 				if (abs(f1_edge2_Deg + f2_edge2_Deg - (viewerF1Deg+viewerF2Deg)) < 0.01f && abs(f1_edge1_Deg + f2_edge1_Deg - (viewerF1Deg + viewerF2Deg)) < 0.01f)
 				{
 					drawWall(
@@ -335,29 +343,100 @@ void OpenGLWidget::drawMaze(Cell *cell, LineSeg f1, LineSeg f2)
 				}
 			}
 		}
-		else
+		else if ( !e->opaque && e->Neighbor(cell) != NULL)// transparent
 		{
-			//float crossParameterView = viewerDir.Cross_Param(e);
-			//float crossParameterF1 = f1.Cross_Param(e);
-			//float crossParameterF2 = f2.Cross_Param(e);
-			//glColor3d(e->color[0], e->color[1], e->color[2]);
+			if (e->counter != DrawCount) e->counter = DrawCount;
+			else continue;
+			double crossParameterView = viewerDir.Cross_Param(e);
+			double crossParameterF1 = f1.Cross_Param(e);
+			double crossParameterF2 = f2.Cross_Param(e);
+			glColor3d(e->color[0], e->color[1], e->color[2]);
 
-			//// 如果視錐任一個方向進入到edge所需要的參數式大於0.f，則將視錐終點座標設定為該edge所在的直線上
-			//if (0.f < crossParameterF1) {
-			//	f1.end[Maze::X] = StableNumber(f1.start[Maze::X] + (f1.end[Maze::X] - f1.start[Maze::X]) * crossParameterF1);
-			//	f1.end[Maze::Y] = StableNumber(f1.start[Maze::Y] + (f1.end[Maze::Y] - f1.start[Maze::Y]) * crossParameterF1);
-			//}
-			//if (0.f < crossParameterF2) {
-			//	f2.end[Maze::X] = StableNumber(f2.start[Maze::X] + (f2.end[Maze::X] - f2.start[Maze::X]) * crossParameterF2);
-			//	f2.end[Maze::Y] = StableNumber(f2.start[Maze::Y] + (f2.end[Maze::Y] - f2.start[Maze::Y]) * crossParameterF2);
-			//}
-			//if (0.f < crossParameterView && crossParameterView < 100000000.f) {
-			//	viewerDir.end[Maze::X] = StableNumber(viewerDir.start[Maze::X] + (viewerDir.end[Maze::X] - viewerDir.start[Maze::X]) * crossParameterView);
-			//	viewerDir.end[Maze::Y] = StableNumber(viewerDir.start[Maze::Y] + (viewerDir.end[Maze::Y] - viewerDir.start[Maze::Y]) * crossParameterView);
-			//}
+			double viewerF1Deg = Degree(viewerDir, f1);
+			double viewerF2Deg = Degree(viewerDir, f2);
 
-			//bool f1WithinEdge = e->WithinEdge(f1.end[Maze::X], f1.end[Maze::Y]);
-			//bool f2WithinEdge = e->WithinEdge(f2.end[Maze::X], f2.end[Maze::Y]);
+
+
+			// 如果視錐任一個方向進入到edge所需要的參數式大於0.f，則將視錐終點座標設定為該edge所在的直線上
+			if (0.f < crossParameterF1) {
+				f1.end[Maze::X] = StableNumber(f1.start[Maze::X] + (f1.end[Maze::X] - f1.start[Maze::X]) * crossParameterF1);
+				f1.end[Maze::Y] = StableNumber(f1.start[Maze::Y] + (f1.end[Maze::Y] - f1.start[Maze::Y]) * crossParameterF1);
+			}
+			if (0.f < crossParameterF2) {
+				f2.end[Maze::X] = StableNumber(f2.start[Maze::X] + (f2.end[Maze::X] - f2.start[Maze::X]) * crossParameterF2);
+				f2.end[Maze::Y] = StableNumber(f2.start[Maze::Y] + (f2.end[Maze::Y] - f2.start[Maze::Y]) * crossParameterF2);
+			}
+			if (0.f < crossParameterView && crossParameterView < 100000000.f) {
+				viewerDir.end[Maze::X] = StableNumber(viewerDir.start[Maze::X] + (viewerDir.end[Maze::X] - viewerDir.start[Maze::X]) * crossParameterView);
+				viewerDir.end[Maze::Y] = StableNumber(viewerDir.start[Maze::Y] + (viewerDir.end[Maze::Y] - viewerDir.start[Maze::Y]) * crossParameterView);
+			}
+
+			bool f1WithinEdge = e->WithinEdge(f1.end[Maze::X], f1.end[Maze::Y]);
+			bool f2WithinEdge = e->WithinEdge(f2.end[Maze::X], f2.end[Maze::Y]);
+			// 如果Clip過後發現視椎都落在同一個Edge上，就直接畫了
+			if (f1WithinEdge && f2WithinEdge)
+			{
+				drawMaze(e->Neighbor(cell), f1, f2);
+			}
+			// 否則要對兩邊的frustum進行縮小frustum
+			else
+			{
+				// 玩家座標與Edge一邊的向量
+				LineSeg edge1(viewerX, viewerY, e->endpoints[Edge::START]->posn[Vertex::X], e->endpoints[Edge::START]->posn[Vertex::Y]);
+				// 玩家座標與Edge另一邊的向量
+				LineSeg edge2(viewerX, viewerY, e->endpoints[Edge::END]->posn[Vertex::X], e->endpoints[Edge::END]->posn[Vertex::Y]);
+
+				LineSeg viewLine(f1.end[Maze::X], f1.end[Maze::Y], f2.end[Maze::X], f2.end[Maze::Y]);
+				double frustum1LinePara = viewLine.Cross_Param(LineSeg(edge1.end[Maze::X], edge1.end[Maze::Y], 0.1, 0.f));
+				double frustum2LinePara = viewLine.Cross_Param(LineSeg(edge2.end[Maze::X], edge2.end[Maze::Y], 0.1, 0.f));
+
+				double f1_ViewDir_Deg = Degree(f1, viewerDir);
+				double f2_ViewDir_Deg = Degree(f2, viewerDir);
+				double f1_edge1_Deg = Degree(f1, edge1);
+				double f2_edge1_Deg = Degree(f2, edge1);
+				double f1_edge2_Deg = Degree(f1, edge2);
+				double f2_edge2_Deg = Degree(f2, edge2);
+				double edge2_viewDir_Deg = Degree(edge2, viewerDir);
+				double edge1_viewDir_Deg = Degree(edge1, viewerDir);
+
+				if (abs(f1_edge2_Deg + f2_edge2_Deg - (viewerF1Deg + viewerF2Deg)) < 0.01f && abs(f1_edge1_Deg + f2_edge1_Deg - (viewerF1Deg + viewerF2Deg)) < 0.01f)
+				{
+					drawMaze(e->Neighbor(cell), edge1, edge2);
+				}
+
+
+				if (e->WithinEdge(f1.end[Maze::X], f1.end[Maze::Y]))
+				{
+					//當視線與不透明牆壁交會時，在該牆壁取角度靠近viewDir的edge當在drawWall的參數
+					// 並且更新frustum
+					if ((edge2_viewDir_Deg <= f2_ViewDir_Deg && f2_edge2_Deg <= f2_ViewDir_Deg) ||
+						(edge2_viewDir_Deg <= f1_ViewDir_Deg && f1_edge2_Deg <= f1_ViewDir_Deg))
+					{
+						drawMaze(e->Neighbor(cell), edge2, f1);
+					}
+					else if ((edge1_viewDir_Deg <= f2_ViewDir_Deg && f2_edge1_Deg <= f2_ViewDir_Deg) ||
+							 (edge1_viewDir_Deg <= f1_ViewDir_Deg && f1_edge1_Deg <= f1_ViewDir_Deg))
+					{
+						drawMaze(e->Neighbor(cell), edge1, f1);
+					}
+				}
+
+				else if (e->WithinEdge(f2.end[Maze::X], f2.end[Maze::Y]))
+				{
+					//當視線與不透明牆壁交會時，在該牆壁取角度靠近viewDir的edge當在drawWall的參數
+					// 並且更新frustum
+					if ((edge2_viewDir_Deg <= f2_ViewDir_Deg && f2_edge2_Deg <= f2_ViewDir_Deg) ||
+						(edge2_viewDir_Deg <= f1_ViewDir_Deg && f1_edge2_Deg <= f1_ViewDir_Deg))
+					{
+						drawMaze(e->Neighbor(cell), edge2, f2);
+					}
+					else if ((edge1_viewDir_Deg <= f2_ViewDir_Deg && f2_edge1_Deg <= f2_ViewDir_Deg) ||
+							 (edge1_viewDir_Deg <= f1_ViewDir_Deg && f1_edge1_Deg <= f1_ViewDir_Deg))
+					{
+						drawMaze(e->Neighbor(cell), edge1, f2);
+					}
+				}
+			}
 		}
 	}
 }
@@ -581,13 +660,37 @@ float Distance(float x1, float y1, float x2, float y2)
 // retrun [0,359.9999]
 double Degree(const LineSeg& line1, const LineSeg& line2)
 {
+	if (line1.start[Maze::X] == line2.start[Maze::X] &&
+		line1.start[Maze::Y] == line2.start[Maze::Y] &&
+		line1.end[Maze::X] == line2.end[Maze::X] &&
+		line1.end[Maze::Y] == line2.end[Maze::Y])
+	{
+		return 0.0f;
+	}
 	double innerVal = line1.innerProduct(line2);
-	double radian = acos(innerVal / (line1.length() * line2.length()));
-	double result = radian / 3.14159f * 180.f;
+	double cosValue = innerVal / (line1.length() * line2.length());
+	double radian = acos(cosValue);
+	double result = radian / 3.1415926l * 180.l;
 	return result;
 }
 
+LineSeg GetViewDir(const LineSeg & line1, const LineSeg line2)
+{
+	assert(line1.start[Maze::X] == line2.start[Maze::X] && line1.start[Maze::Y] == line2.start[Maze::Y]);
+	double len = line1.length() < line2.length() ? line2.length() : line1.length();
+	LineSeg newLine1 = line1;
+	LineSeg newLine2 = line2;
+	newLine1.end[Maze::X] = newLine1.start[Maze::X] + (newLine1.end[Maze::X] - newLine1.start[Maze::X]) * (len / newLine1.length());
+	newLine1.end[Maze::Y] = newLine1.start[Maze::Y] + (newLine1.end[Maze::Y] - newLine1.start[Maze::Y]) * (len / newLine1.length());
 
+	newLine2.end[Maze::X] = newLine2.start[Maze::X] + (newLine2.end[Maze::X] - newLine2.start[Maze::X]) * (len / newLine2.length());
+	newLine2.end[Maze::Y] = newLine2.start[Maze::Y] + (newLine2.end[Maze::Y] - newLine2.start[Maze::Y]) * (len / newLine2.length());
+
+	LineSeg result(line1.start[Maze::X], line1.start[Maze::Y], 0, 0);;
+	result.end[Maze::X] = (newLine1.end[Maze::X] + newLine2.end[Maze::X]) / 2.f;
+	result.end[Maze::Y] = (newLine1.end[Maze::Y] + newLine2.end[Maze::Y]) / 2.f;
+	return result; 
+}
 
 
 

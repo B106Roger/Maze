@@ -1,2 +1,9 @@
-﻿  OpenGLWidget.cpp
+﻿  Moc'ing OpenGLWidget.h...
+  Edge.cpp
+  moc_MazeWidget.cpp
+  moc_OpenGLWidget.cpp
+  main.cpp
+  MazeWidget.cpp
+  OpenGLWidget.cpp
+  正在產生程式碼...
   Maze.vcxproj -> D:\GitHub\Maze\x64\Debug\Maze.exe
