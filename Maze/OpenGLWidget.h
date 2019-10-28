@@ -21,6 +21,9 @@ public:
 	void Map_3D();
 	void loadTexture2D(QString, GLuint &);
 	float degree_change(float );
+
+	// draw floor
+	void drawFloor(LineSeg f1, LineSeg f2);
 private:
 	GLuint grass_ID;
 	GLuint sky_ID;

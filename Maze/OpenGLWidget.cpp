@@ -155,13 +155,15 @@ void OpenGLWidget::Map_3D()
 	LineSeg f1 = LineSeg(MazeWidget::maze->viewer_posn[Maze::X], MazeWidget::maze->viewer_posn[Maze::Y],frustum1X, frustum1Y);
 	LineSeg f2 = LineSeg(MazeWidget::maze->viewer_posn[Maze::X], MazeWidget::maze->viewer_posn[Maze::Y], frustum2X, frustum2Y);
 	DrawCount = (DrawCount + 1) % 20000000;
-	cout << "*************************************************\n";
+	//cout << "*************************************************\n";
 	drawMaze(viewCell, f1, f2);
-	cout << "*************************************************\n";
+	//cout << "*************************************************\n";
+	//drawFloor(f1, f2);
+
 
 	/*若有興趣的話, 可以為地板或迷宮上貼圖, 此項目不影響評分*/
-	glBindTexture(GL_TEXTURE_2D, sky_ID);
-	
+	glBindTexture(GL_TEXTURE_2D, grass_ID);
+
 	// 畫貼圖 & 算 UV
 	glDisable(GL_TEXTURE_2D);
 }
@@ -188,7 +190,7 @@ void OpenGLWidget::drawMaze(Cell *cell, LineSeg f1, LineSeg f2)
 {
 	const float viewerX = MazeWidget::maze->viewer_posn[Maze::X];
 	const float viewerY = MazeWidget::maze->viewer_posn[Maze::Y];
-	cout << "Cell: " << cell->index << endl;
+	//cout << "Cell: " << cell->index << endl;
 	vector<Edge*> newOrder;
 	// 先將繪製不透明的
 	for (int i = 0; i < 4; i++)
@@ -520,6 +522,7 @@ void OpenGLWidget::projectionMatrix()
 	matrix = Multiply(viewToScreen,worldToView);
 }
 
+
 vector<vector<float>> Multiply(const vector<vector<float>> &m1, const vector<vector<float>> &m2)
 {
 	assert(m1[0].size() == m2.size());
@@ -652,7 +655,97 @@ LineSeg GetViewDir(const LineSeg & line1, const LineSeg & line2)
 	return result; 
 }
 
+void OpenGLWidget::drawFloor(LineSeg f1, LineSeg f2)
+{
+	vector<vector<float>> mapCoor = {
+		{MazeWidget::maze->min_xp,MazeWidget::maze->min_xp,MazeWidget::maze->max_xp,MazeWidget::maze->max_xp},
+		{MazeWidget::maze->min_yp,MazeWidget::maze->max_yp,MazeWidget::maze->max_yp,MazeWidget::maze->min_yp},
+	};
+	vector<Edge*> edgeList;
+	for (int i = 0; i < 4; i++)
+	{
+		Vertex *a = new Vertex(0, mapCoor[0][i], mapCoor[1][i]);
+		Vertex *b = new Vertex(0, mapCoor[0][(i + 1) % 4], mapCoor[1][(i + 1) % 4]);
 
+		Edge *newEdge = new Edge(-1, a, b, 0.f, 0.f, 0.f);
+		edgeList.push_back(newEdge);
+	}
+	double crossParameterF1 = 10000000.f;
+	double crossParameterF2 = 10000000.f;
+	int index1 = -1;
+	int index2 = -1;
+	for (int i = 0; i < 4; i++)
+	{
+		float cross1 = f1.Cross_Param(edgeList[i]);
+		float cross2 = f2.Cross_Param(edgeList[i]);
+		if (cross1 < crossParameterF1 && cross1 > 0.f)
+		{
+			crossParameterF1 = cross1;
+			index1 = i;
+		}
+		if (cross2 < crossParameterF2 && cross2 > 0.f)
+		{
+			crossParameterF2 = cross2;
+			index2 = i;
+		}
+	}
+	if (0.f < crossParameterF1) {
+		f1.end[Maze::X] = StableNumber(f1.start[Maze::X] + (f1.end[Maze::X] - f1.start[Maze::X]) * crossParameterF1);
+		f1.end[Maze::Y] = StableNumber(f1.start[Maze::Y] + (f1.end[Maze::Y] - f1.start[Maze::Y]) * crossParameterF1);
+	}
+	if (0.f < crossParameterF2) {
+		f2.end[Maze::X] = StableNumber(f2.start[Maze::X] + (f2.end[Maze::X] - f2.start[Maze::X]) * crossParameterF2);
+		f2.end[Maze::Y] = StableNumber(f2.start[Maze::Y] + (f2.end[Maze::Y] - f2.start[Maze::Y]) * crossParameterF2);
+	}
+
+	vector<vector<float>> vertexList = {
+		{float(f1.end[Maze::X]),float(f1.start[Maze::X]),float(f2.end[Maze::X])},
+		{1,1,1},
+		{float(f1.end[Maze::Y]),float(f1.start[Maze::Y]),float(f2.end[Maze::Y])},
+		{1,1,1}
+	};
+	for (Edge *e : edgeList)
+	{
+		LineSeg view_to_edge(
+			f1.start[Maze::X],
+			f1.start[Maze::Y],
+			e->endpoints[Edge::END]->posn[Vertex::X],
+			e->endpoints[Edge::END]->posn[Vertex::Y]);
+		double f1_point_Deg = Degree(f1, view_to_edge);
+		double f2_point_Deg = Degree(f2, view_to_edge);
+		double f1_f2_Deg = Degree(f1, f2);
+
+		if (abs(f1_point_Deg + f2_point_Deg - f1_f2_Deg) < 0.01f)
+		{
+			vertexList[0].push_back(view_to_edge.end[Maze::X]);
+			vertexList[1].push_back(1);
+			vertexList[2].push_back(view_to_edge.end[Maze::Y]);
+			vertexList[3].push_back(1);
+		}
+	}
+	vector<vector<float>>resultingVertex = Multiply(matrix, vertexList);
+
+
+
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, grass_ID);
+	glBegin(GL_POLYGON);
+	for (int i = 0; i < resultingVertex.front().size(); i++)
+	{
+		glTexCoord2f(vertexList[0][i] / MazeWidget::maze->max_xp, vertexList[2][i] / MazeWidget::maze->max_yp);
+		glVertex2f(resultingVertex[0][i] / resultingVertex[3][i], resultingVertex[1][i] / resultingVertex[3][i]);
+	}
+	glEnd();
+	glDisable(GL_TEXTURE_2D);
+
+	for (Edge *e : edgeList)
+	{
+		delete e->endpoints[Edge::START];
+		delete e->endpoints[Edge::END];
+		delete e;
+	}
+}
 
 
 
