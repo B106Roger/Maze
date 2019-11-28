@@ -1,2 +1,12 @@
 ﻿  OpenGLWidget.cpp
+Vertex.obj : warning LNK4099: 找不到 PDB 'vc141.pdb' (有 'Vertex.obj' 或位於 'D:\GitHub\Maze\x64\Debug\vc141.pdb')，當做沒有偵錯資訊，連結物件
+MazeWidget.obj : warning LNK4099: 找不到 PDB 'vc141.pdb' (有 'MazeWidget.obj' 或位於 'D:\GitHub\Maze\x64\Debug\vc141.pdb')，當做沒有偵錯資訊，連結物件
+Maze.obj : warning LNK4099: 找不到 PDB 'vc141.pdb' (有 'Maze.obj' 或位於 'D:\GitHub\Maze\x64\Debug\vc141.pdb')，當做沒有偵錯資訊，連結物件
+main.obj : warning LNK4099: 找不到 PDB 'vc141.pdb' (有 'main.obj' 或位於 'D:\GitHub\Maze\x64\Debug\vc141.pdb')，當做沒有偵錯資訊，連結物件
+LineSeg.obj : warning LNK4099: 找不到 PDB 'vc141.pdb' (有 'LineSeg.obj' 或位於 'D:\GitHub\Maze\x64\Debug\vc141.pdb')，當做沒有偵錯資訊，連結物件
+qrc_maze.obj : warning LNK4099: 找不到 PDB 'vc141.pdb' (有 'qrc_maze.obj' 或位於 'D:\GitHub\Maze\x64\Debug\vc141.pdb')，當做沒有偵錯資訊，連結物件
+moc_OpenGLWidget.obj : warning LNK4099: 找不到 PDB 'vc141.pdb' (有 'moc_OpenGLWidget.obj' 或位於 'D:\GitHub\Maze\x64\Debug\vc141.pdb')，當做沒有偵錯資訊，連結物件
+moc_MazeWidget.obj : warning LNK4099: 找不到 PDB 'vc141.pdb' (有 'moc_MazeWidget.obj' 或位於 'D:\GitHub\Maze\x64\Debug\vc141.pdb')，當做沒有偵錯資訊，連結物件
+Edge.obj : warning LNK4099: 找不到 PDB 'vc141.pdb' (有 'Edge.obj' 或位於 'D:\GitHub\Maze\x64\Debug\vc141.pdb')，當做沒有偵錯資訊，連結物件
+Cell.obj : warning LNK4099: 找不到 PDB 'vc141.pdb' (有 'Cell.obj' 或位於 'D:\GitHub\Maze\x64\Debug\vc141.pdb')，當做沒有偵錯資訊，連結物件
   Maze.vcxproj -> D:\GitHub\Maze\x64\Debug\Maze.exe

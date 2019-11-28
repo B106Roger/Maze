@@ -156,9 +156,10 @@ void OpenGLWidget::Map_3D()
 	LineSeg f2 = LineSeg(MazeWidget::maze->viewer_posn[Maze::X], MazeWidget::maze->viewer_posn[Maze::Y], frustum2X, frustum2Y);
 	DrawCount = (DrawCount + 1) % 20000000;
 	//cout << "*************************************************\n";
+	drawFloor(f1, f2);
 	drawMaze(viewCell, f1, f2);
 	//cout << "*************************************************\n";
-	//drawFloor(f1, f2);
+	//
 
 
 	/*若有興趣的話, 可以為地板或迷宮上貼圖, 此項目不影響評分*/
@@ -657,7 +658,7 @@ LineSeg GetViewDir(const LineSeg & line1, const LineSeg & line2)
 
 void OpenGLWidget::drawFloor(LineSeg f1, LineSeg f2)
 {
-	vector<vector<float>> mapCoor = {
+	/*vector<vector<float>> mapCoor = {
 		{MazeWidget::maze->min_xp,MazeWidget::maze->min_xp,MazeWidget::maze->max_xp,MazeWidget::maze->max_xp},
 		{MazeWidget::maze->min_yp,MazeWidget::maze->max_yp,MazeWidget::maze->max_yp,MazeWidget::maze->min_yp},
 	};
@@ -725,26 +726,46 @@ void OpenGLWidget::drawFloor(LineSeg f1, LineSeg f2)
 	}
 	vector<vector<float>>resultingVertex = Multiply(matrix, vertexList);
 
-
+*/
 
 
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, grass_ID);
 	glBegin(GL_POLYGON);
-	for (int i = 0; i < resultingVertex.front().size(); i++)
-	{
-		glTexCoord2f(vertexList[0][i] / MazeWidget::maze->max_xp, vertexList[2][i] / MazeWidget::maze->max_yp);
-		glVertex2f(resultingVertex[0][i] / resultingVertex[3][i], resultingVertex[1][i] / resultingVertex[3][i]);
-	}
+
+	glTexCoord2f(0.0, 0.0);
+	glVertex2f(-1.f, -1.f);
+
+	glTexCoord2f(1.0, 0.0);
+	glVertex2f(1.f, -1.f);
+
+	glTexCoord2f(1.0, 1.0);
+	glVertex2f(1.f, 0.f);
+
+	glTexCoord2f(0.0, 1.0);
+	glVertex2f(-1.f, 0.f);
+
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
 
-	for (Edge *e : edgeList)
-	{
-		delete e->endpoints[Edge::START];
-		delete e->endpoints[Edge::END];
-		delete e;
-	}
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, sky_ID);
+	glBegin(GL_POLYGON);
+
+	glTexCoord2f(0.0, 0.0);
+	glVertex2f(-1.f, 0.f);
+
+	glTexCoord2f(1.0, 0.0);
+	glVertex2f(1.f, 0.f);
+
+	glTexCoord2f(1.0, 1.0);
+	glVertex2f(1.f, 1.f);
+
+	glTexCoord2f(0.0, 1.0);
+	glVertex2f(-1.f, 1.f);
+
+	glEnd();
+	glDisable(GL_TEXTURE_2D);
 }
 
 
