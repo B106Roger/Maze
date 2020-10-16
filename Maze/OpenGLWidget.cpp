@@ -91,6 +91,7 @@ void OpenGLWidget::testingSetting() {
 //Draw Left Part
 void OpenGLWidget::Mini_Map()	
 {
+	glLineWidth(20);
 	glBegin(GL_LINES);
 
 		float viewerPosX = MazeWidget::maze->viewer_posn[Maze::X];
@@ -105,6 +106,7 @@ void OpenGLWidget::Mini_Map()
 			float edgeEndY = MazeWidget::maze->edges[i]->endpoints[Edge::END]->posn[Vertex::Y];
 
 			glColor3f(MazeWidget::maze->edges[i]->color[0] , MazeWidget::maze->edges[i]->color[1], MazeWidget::maze->edges[i]->color[2]);
+			
 			if(MazeWidget::maze->edges[i]->opaque)
 			{
 				glVertex2f(edgeStartX, edgeStartY);
